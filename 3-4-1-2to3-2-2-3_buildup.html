@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3-4-1-2 → 3-2-2-3 自陣ビルドアップ解説</title>
+<style>
+:root{--bg:#f3f5f2;--fg:#17211c;--mut:#5b6a62;--card:#fff;--line:#d5ddd7;--acc:#0f6b57;--bad:#b3392f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181a;--fg:#e8efe9;--mut:#9db0a5;--card:#18242a;--line:#2b3b40;--acc:#5fd0b0;--bad:#ff8a7d}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;line-height:1.75}
+main{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px;line-height:1.35}
+.sub{color:var(--mut);margin:0 0 18px;font-size:.92rem}
+.stage{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:20px;align-items:start}
+@media(max-width:760px){.stage{grid-template-columns:1fr}}
+.pitchwrap{background:#2c5a4c;border-radius:10px;padding:6px}
+svg{display:block;width:100%;height:auto}
+.pl{fill:none;stroke:#ffffff55;stroke-width:1.5}
+.p circle{stroke:#10181a;stroke-width:1.5}
+.p text{font-size:9.5px;font-weight:700;text-anchor:middle;dominant-baseline:central;fill:#10181a;pointer-events:none}
+.p{transition:transform 1s cubic-bezier(.5,0,.2,1)}
+.d{fill:#e9c46a}.m{fill:#8ecae6}.f{fill:#ff9eb0}.g{fill:#ccc}
+.zone{fill:#ffffff14;stroke:#fff;stroke-width:1.2;stroke-dasharray:5 4}
+.zl{fill:#fff;font-size:10px;text-anchor:middle}
+.arr{stroke:#fff;stroke-width:2.2;fill:none;marker-end:url(#ah);stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw .6s forwards}
+.mv{stroke:#ffffff99;stroke-width:1.5;stroke-dasharray:3 4;fill:none;marker-end:url(#ah2)}
+.no{stroke:#ff6b5e;stroke-width:2;stroke-dasharray:5 4;fill:none}
+.nx{fill:#ff6b5e;font-size:18px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+@keyframes draw{to{stroke-dashoffset:0}}
+#ball{fill:#fff;stroke:#10181a;stroke-width:2;transition:transform .7s ease}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.panel h2{font-size:1.15rem;margin:0 0 6px}
+.panel p{margin:0 0 8px}
+.ctl{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer;min-height:40px}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+:root[data-theme="dark"] button.pri{color:#10181a}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.steps button{padding:4px 10px;min-height:34px;font-size:.85rem}
+.steps button[aria-current=true]{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc);font-weight:700}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--mut);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+section{margin-top:30px}
+section h2{font-size:1.25rem;margin:0 0 10px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.cols .panel h3{margin:0 0 6px;font-size:1.05rem}
+.good h3{color:var(--acc)}.bad h3{color:var(--bad)}
+ul{margin:0;padding-left:1.2em}li{margin-bottom:5px}
+.note{font-size:.85rem;color:var(--mut);margin-top:18px}
+@media(prefers-reduced-motion:reduce){.p,#ball{transition:none}.arr{animation:none;stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<main>
+<h1>3-4-1-2 から 3-2-2-3 への可変ビルドアップ</h1>
+<p class="sub">攻撃方向は上。ステップを送りながら、各選手の移動・ボールの動き・狙いを確認できます。</p>
+
+<div class="stage">
+  <div>
+    <div class="pitchwrap">
+      <svg id="pitch" viewBox="0 0 400 560" role="img" aria-label="ビルドアップの配置アニメーション">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
+          <marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffffff99"/></marker>
+        </defs>
+        <rect class="pl" x="10" y="10" width="380" height="540"/>
+        <line class="pl" x1="10" y1="40" x2="390" y2="40" stroke-opacity="0"/>
+        <rect class="pl" x="100" y="450" width="200" height="100"/>
+        <rect class="pl" x="150" y="505" width="100" height="45"/>
+        <path class="pl" d="M100 10 h200 M0 0"/>
+        <line class="pl" x1="10" y1="290" x2="390" y2="290" stroke-dasharray="4 6"/>
+        <g id="zones"></g><g id="mv"></g><g id="arrows"></g>
+        <g id="players"></g>
+        <circle id="ball" r="6" cx="0" cy="0"/>
+      </svg>
+    </div>
+    <div class="legend"><span><i style="background:#e9c46a"></i>DF</span><span><i style="background:#8ecae6"></i>MF</span><span><i style="background:#ff9eb0"></i>FW</span><span>点線＝移動 / 実線＝パス</span></div>
+  </div>
+  <div class="panel" aria-live="polite">
+    <h2 id="t"></h2>
+    <div id="d"></div>
+    <div class="ctl">
+      <button id="prev">前へ</button>
+      <button id="next" class="pri">次へ</button>
+      <button id="play">自動再生</button>
+      <button id="replay">このステップを再生</button>
+    </div>
+    <div class="steps" id="steps"></div>
+  </div>
+</div>
+
+<section>
+  <h2>このシステムの特徴</h2>
+  <div class="panel">
+    <p><b>ねらい：</b>CBからWBへ直接出せない運用でも、<b>左はLWBの内側化</b>で最初から3-2を作り、CAMを「WBを助ける仕事」から解放してライン間の受けに専念させる。</p>
+    <p><b>構造：</b>LWB+RCM（下）とLCM+CAM（上）が作る<b>ボックスミッドフィールド</b>で中央に位置的優位を作る。後方の3+2はそのままレストディフェンスの土台になる。</p>
+  </div>
+</section>
+
+<section>
+  <h2>メリットとデメリット</h2>
+  <div class="cols">
+    <div class="panel good"><h3>メリット</h3><ul>
+      <li>CB→WBの横パスに頼らず、<b>CB→ボランチの中央パス</b>で前進できる</li>
+      <li>CAMの「ライン間で受ける」と「WBサポート」の高さ矛盾が解消する</li>
+      <li>4枚のボックスで相手2トップ／MFラインに数的・位置的優位</li>
+      <li>左LWBが相手右WGを内側に引き出し、LSの外にスペースができる</li>
+      <li>後方に5枚いるため、ロスト時のカウンターに事前に備えられる</li>
+      <li>RCMがCB間に落ちても、LWBが単独アンカーとして3-1に切り替えられる</li>
+    </ul></div>
+    <div class="panel bad"><h3>デメリット</h3><ul>
+      <li>左右非対称で、「左でビルド・右は出口が少ない」と読まれやすい</li>
+      <li>左の幅がLS1人に依存し、LSが孤立すると左が詰まる</li>
+      <li>LWBに内側でターンできる能力と中央の守備力が必要（外側専門では成立しにくい）</li>
+      <li>左大外へのロングボールでLCBが外に引っ張られやすい</li>
+      <li>右は、RWBが高い分RCBの担当エリアが広がる</li>
+      <li>前線は3枚。LWBのアンダーラップ再合流で3-2-5に近づける必要がある</li>
+    </ul></div>
+  </div>
+</section>
+
+<section>
+  <h2>成立条件と決めておくルール</h2>
+  <div class="cols">
+    <div class="panel"><h3>成立条件</h3><ul>
+      <li>LWB：背中にプレスを受けても前を向けること</li>
+      <li>LS：左の幅を一人で保持し、1対1で仕掛けるか受け直せること</li>
+      <li>右へ逃がす手段（LCB→RCBの斜めパス、RCM経由）があること</li>
+    </ul></div>
+    <div class="panel"><h3>未決定のルール</h3><ul>
+      <li>LWBが内側に入るのは最初からか、プレスを受けた時だけか</li>
+      <li>RCMがCB間に落ちる条件と、そのときのLWB・LCMの動き</li>
+      <li>左の幅はLSが常時担当か、LCMが外に出たらLSが内に入るか</li>
+    </ul></div>
+  </div>
+  <p class="note">※ 前線3枚の役割（LSが左幅、RSが中央）は仮定です。動きは一般的な戦術論に基づく設計案で、実際の選手特性や試合映像で検証したものではありません。</p>
+</section>
+</main>
+
+<script>
+const R=15;
+const BASE={GK:[200,520],LCB:[110,430],CB:[200,445],RCB:[290,430],LWB:[50,230],LCM:[140,285],RCM:[260,285],RWB:[350,230],CAM:[200,195],LS:[150,115],RS:[250,115]};
+const KIND={GK:'g',LCB:'d',CB:'d',RCB:'d',LWB:'m',LCM:'m',RCM:'m',RWB:'m',CAM:'m',LS:'f',RS:'f'};
+const SHAPE={LS:[60,125],RS:[200,105],RWB:[350,135],LCM:[130,235],CAM:[270,235],LWB:[150,345],RCM:[250,345]};
+const DROP={...SHAPE,RCM:[245,400],LWB:[165,335]};
+const STEPS=[
+{t:'ベース配置：3-4-1-2',d:'<p>スタート時の並び。両WBは高め、3CMの前にCAM、前に2トップ。</p><p>ここから<b>CB→WBに出せない</b>運用のため、このままだと3バックの前に受け手がいません。</p>',pos:{},path:[]},
+{t:'可変：3-2-2-3へ移動',d:'<p><b>LWBが内側に入ってボランチ</b>になり、<b>LSは左の幅</b>へ。LCMは左ハーフスペース、CAMは右ハーフスペース、RWBは右の幅に残ります。</p><p>LWBがCB→WBの横パスを「CB→ボランチの中央パス」に置き換える点が核心です。</p>',pos:SHAPE,moves:Object.keys(SHAPE),path:[]},
+{t:'3-2-2-3の完成形',d:'<p>下のLWB・RCMと上のLCM・CAMで<b>ボックスミッドフィールド</b>を形成。後方は3+2で安定します。</p><p>CAMは横に走る必要がなくなり、ライン間で前を向くことに専念できます。</p>',pos:SHAPE,path:[],zones:[{ids:['LWB','RCM','LCM','CAM'],l:'ボックスミッドフィールド'}]},
+{t:'左ルート：サードマン型',d:'<p><b>LCB→LWB→LCM→LS</b>。LWBが受けて、LCMが前を向く3人目として使い、最後は左の幅のLSへ。</p><p>LWBが相手右WGを内側に引き出すので、LSの外側が空きやすくなります。</p>',pos:SHAPE,path:['LCB','LWB','LCM','LS']},
+{t:'右ルート：RWBへは直接出さない',d:'<p><b>RCB→RCM→CAM→RWB</b>。RWBへの直接パス（×）は避け、CAM経由で最後に使います。</p><p>RWBは幅を固定して相手を張り付かせ、逆サイド展開やサードマンの出口になります。</p>',pos:SHAPE,path:['RCB','RCM','CAM','RWB'],no:[['RCB','RWB']]},
+{t:'RCMがCB間に落ちる（状況次第）',d:'<p>相手が中央を消してきたら<b>RCMがCB間へ</b>。LWBは単独アンカーとなり、一時的に3-1（実質4バック化）。</p><p>数的に余裕ができたCBから、LCM・CAMへ縦パスを通します。</p>',pos:DROP,moves:['RCM','LWB'],path:['CB','LWB','LCM'],base:SHAPE},
+{t:'ボールロスト：3+2のレストディフェンス',d:'<p>ロスト時は<b>3バック+LWB+RCMの5枚</b>が既に後方にいるため、カウンターに対して事前に安定した形になります。</p><p>注意点：左大外へのロングボールにはLSの戻りかLCMのスライドが必要です。</p>',pos:SHAPE,path:[],zones:[{ids:['LCB','CB','RCB','LWB','RCM'],l:'3+2 レストディフェンス'}]}
+];
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+const pg=$('players'),nodes={};
+for(const k in BASE){const g=el('g',{class:'p'},pg);el('circle',{r:R,class:KIND[k]},g);const t=el('text',{},g);t.textContent=k;nodes[k]=g;g.style.transform=`translate(${BASE[k][0]}px,${BASE[k][1]}px)`}
+const ball=$('ball');let cur=0,timers=[],auto=null,pos={...BASE};
+function clr(){timers.forEach(clearTimeout);timers=[]}
+function shorten(a,b,s,e){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;return [[a[0]+ux*s,a[1]+uy*s],[b[0]-ux*e,b[1]-uy*e],L]}
+function render(i,replay){
+  clr();cur=i;const S=STEPS[i];
+  const target={...BASE,...S.pos};
+  if(replay){for(const k in nodes)nodes[k].style.transition='none';
+    const from=i===5?SHAPE:BASE;for(const k in nodes){const f=(S.moves&&replay)?(S.base||BASE)[k]||BASE[k]:target[k];nodes[k].style.transform=`translate(${f[0]}px,${f[1]}px)`}
+    void pg.getBoundingClientRect();for(const k in nodes)nodes[k].style.transition=''}
+  pos=target;
+  for(const k in nodes)nodes[k].style.transform=`translate(${target[k][0]}px,${target[k][1]}px)`;
+  $('t').textContent=S.t;$('d').innerHTML=S.d;
+  document.querySelectorAll('#steps button').forEach((b,j)=>b.setAttribute('aria-current',j===i));
+  ['zones','mv','arrows'].forEach(id=>$(id).replaceChildren());
+  (S.zones||[]).forEach(z=>{const xs=z.ids.map(k=>target[k][0]),ys=z.ids.map(k=>target[k][1]);const x0=Math.min(...xs)-26,x1=Math.max(...xs)+26,y0=Math.min(...ys)-26,y1=Math.max(...ys)+26;
+    el('rect',{x:x0,y:y0,width:x1-x0,height:y1-y0,rx:16,class:'zone'},$('zones'));const t=el('text',{x:(x0+x1)/2,y:y0-5,class:'zl'},$('zones'));t.textContent=z.l});
+  (S.moves||[]).forEach(k=>{const a=(S.base||BASE)[k],b=target[k];if(Math.hypot(a[0]-b[0],a[1]-b[1])<8)return;const [s,e]=shorten(a,b,R,R+2);el('line',{x1:s[0],y1:s[1],x2:e[0],y2:e[1],class:'mv'},$('mv'))});
+  (S.no||[]).forEach(([a,b])=>{const A=target[a],B=target[b];const [s,e]=shorten(A,B,R,R);el('line',{x1:s[0],y1:s[1],x2:e[0],y2:e[1],class:'no'},$('mv'));const t=el('text',{x:(A[0]+B[0])/2,y:(A[1]+B[1])/2,class:'nx'},$('mv'));t.textContent='×'});
+  const P=S.path||[];
+  if(P.length){ball.style.transition='none';ball.style.transform=`translate(${target[P[0]][0]}px,${target[P[0]][1]-R-2}px)`;void ball.getBoundingClientRect();ball.style.transition='';
+    for(let j=0;j<P.length-1;j++){const delay=900+j*800;timers.push(setTimeout(()=>{const a=target[P[j]],b=target[P[j+1]];const [s,e,L]=shorten(a,b,R,R+3);
+      const l=el('line',{x1:s[0],y1:s[1],x2:e[0],y2:e[1],class:'arr'},$('arrows'));l.style.setProperty('--len',L);
+      ball.style.transform=`translate(${b[0]}px,${b[1]-R-2}px)`},delay))}
+  }else{ball.style.transition='none';ball.style.transform=`translate(${BASE.GK[0]}px,${BASE.GK[1]-R-2}px)`;if(i>=2)ball.style.transform=`translate(${target.CB[0]}px,${target.CB[1]-R-2}px)`}
+}
+const sb=$('steps');STEPS.forEach((s,i)=>{const b=document.createElement('button');b.textContent=(i+1);b.title=s.t;b.onclick=()=>{stop();render(i,true)};sb.appendChild(b)});
+function stop(){if(auto){clearInterval(auto);auto=null;$('play').textContent='自動再生'}}
+$('prev').onclick=()=>{stop();render((cur+STEPS.length-1)%STEPS.length,true)};
+$('next').onclick=()=>{stop();render((cur+1)%STEPS.length,true)};
+$('replay').onclick=()=>{stop();render(cur,true)};
+$('play').onclick=()=>{if(auto){stop();return}$('play').textContent='停止';auto=setInterval(()=>render((cur+1)%STEPS.length,true),5500)};
+render(0,false);
+</script>
+</body>
+</html>

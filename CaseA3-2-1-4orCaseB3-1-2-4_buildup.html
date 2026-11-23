@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>案A 3-2-1-4 と 案B 3-1-2-4 のビルドアップ比較</title>
+<style>
+:root{--bg:#f3f5f2;--fg:#17211c;--mut:#5b6a62;--card:#fff;--line:#d5ddd7;--acc:#0f6b57;--bad:#b3392f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181a;--fg:#e8efe9;--mut:#9db0a5;--card:#18242a;--line:#2b3b40;--acc:#5fd0b0;--bad:#ff8a7d}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;line-height:1.75}
+main{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px;line-height:1.35}
+.sub{color:var(--mut);margin:0 0 14px;font-size:.92rem}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button{flex:1;font-weight:700}
+.tabs button[aria-pressed=true]{background:var(--acc);color:#fff;border-color:var(--acc)}
+:root[data-theme="dark"] .tabs button[aria-pressed=true]{color:#10181a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs button[aria-pressed=true]{color:#10181a}}
+.stage{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:20px;align-items:start}
+@media(max-width:760px){.stage{grid-template-columns:1fr}}
+.pitchwrap{background:#2c5a4c;border-radius:10px;padding:6px}
+svg{display:block;width:100%;height:auto}
+.pl{fill:none;stroke:#ffffff55;stroke-width:1.5}
+.p circle{stroke:#10181a;stroke-width:1.5}
+.p text{font-size:9px;font-weight:700;text-anchor:middle;dominant-baseline:central;fill:#10181a;pointer-events:none}
+.p{transition:transform 1s cubic-bezier(.5,0,.2,1)}
+.d{fill:#e9c46a}.m{fill:#8ecae6}.f{fill:#ff9eb0}.g{fill:#ccc}
+.zone{fill:#ffffff14;stroke:#fff;stroke-width:1.2;stroke-dasharray:5 4}
+.zl{fill:#fff;font-size:10px;text-anchor:middle}
+.gh{fill:none;stroke:#ffd166;stroke-width:1.6;stroke-dasharray:4 4}
+.gt{fill:#ffd166;font-size:10px;text-anchor:middle}
+.arr{stroke:#fff;stroke-width:2.2;fill:none;marker-end:url(#ah);stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw .6s forwards}
+.mv{stroke:#ffffff99;stroke-width:1.5;stroke-dasharray:3 4;fill:none;marker-end:url(#ah2)}
+.no{stroke:#ff6b5e;stroke-width:2;stroke-dasharray:5 4;fill:none}
+.nx{fill:#ff6b5e;font-size:18px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+@keyframes draw{to{stroke-dashoffset:0}}
+#ball{fill:#fff;stroke:#10181a;stroke-width:2;transition:transform .7s ease}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.panel h2{font-size:1.15rem;margin:0 0 6px}
+.panel p{margin:0 0 8px}
+.ctl{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer;min-height:40px}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.steps button{padding:4px 10px;min-height:34px;font-size:.85rem}
+.steps button[aria-current=true]{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc);font-weight:700}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--mut);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+section{margin-top:30px}
+section h2{font-size:1.25rem;margin:0 0 10px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.cols .panel h3{margin:0 0 6px;font-size:1.05rem}
+.good h3{color:var(--acc)}.bad h3{color:var(--bad)}
+ul{margin:0;padding-left:1.2em}li{margin-bottom:5px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:.92rem}
+th{background:var(--bg)}
+.note{font-size:.85rem;color:var(--mut);margin-top:18px}
+@media(prefers-reduced-motion:reduce){.p,#ball{transition:none}.arr{animation:none;stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<main>
+<h1>自陣ビルドアップ：案A（3-2-1-4）と案B（3-1-2-4）</h1>
+<p class="sub">WB高位置固定・WBへ直接パスを出さない前提。攻撃方向は上。タブで案を切り替えます。</p>
+<div class="tabs" role="group" aria-label="案の切り替え">
+  <button id="tA" aria-pressed="true">案A：3412のまま修正（3-2-1-4）</button>
+  <button id="tB" aria-pressed="false">案B：3142に変更（3-1-2-4）</button>
+</div>
+
+<div class="stage">
+  <div>
+    <div class="pitchwrap">
+      <svg viewBox="0 0 400 560" role="img" aria-label="ビルドアップの配置アニメーション">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
+          <marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffffff99"/></marker>
+        </defs>
+        <rect class="pl" x="10" y="10" width="380" height="540"/>
+        <rect class="pl" x="100" y="450" width="200" height="100"/>
+        <rect class="pl" x="150" y="505" width="100" height="45"/>
+        <line class="pl" x1="10" y1="290" x2="390" y2="290" stroke-dasharray="4 6"/>
+        <g id="zones"></g><g id="mv"></g><g id="arrows"></g>
+        <g id="players"></g>
+        <circle id="ball" r="6"/>
+      </svg>
+    </div>
+    <div class="legend"><span><i style="background:#e9c46a"></i>DF</span><span><i style="background:#8ecae6"></i>MF/WB</span><span><i style="background:#ff9eb0"></i>FW</span><span>点線＝移動 / 実線＝パス</span></div>
+  </div>
+  <div class="panel" aria-live="polite">
+    <h2 id="t"></h2>
+    <div id="d"></div>
+    <div class="ctl">
+      <button id="prev">前へ</button>
+      <button id="next" class="pri">次へ</button>
+      <button id="play">自動再生</button>
+      <button id="replay">このステップを再生</button>
+    </div>
+    <div class="steps" id="steps"></div>
+  </div>
+</div>
+
+<section>
+  <h2>メリットとデメリット</h2>
+  <div class="cols">
+    <div class="panel"><h3>案A：3-2-1-4</h3>
+      <div class="good"><h3>メリット</h3><ul>
+        <li>CAMを攻撃の中心として残せ、2トップ・4トップとの連携が作りやすい</li>
+        <li>CAMが相手のMFとDFの間で前を向ける</li>
+        <li>2ボランチが後方を支え、ビルドアップが安定する</li></ul></div>
+      <div class="bad" style="margin-top:8px"><h3>デメリット</h3><ul>
+        <li>CAMの「ライン間で受ける」と「WBサポートで横に動く」は高さが違い、同時に果たせない</li>
+        <li>CAMが流れると中央の接続役が不在になる</li>
+        <li>LCM・RCM・CAMの役割が曖昧だと位置が重なる</li>
+        <li>中盤の配置が固定的になりやすい</li></ul></div>
+    </div>
+    <div class="panel"><h3>案B：3-1-2-4</h3>
+      <div class="good"><h3>メリット</h3><ul>
+        <li>アンカー・2CMで高さの違う受け手を段階的に置ける</li>
+        <li>アンカーが左右に動き、困れば2CMが交互に降りて3-1/3-2を使い分けられる</li>
+        <li>片方が降りても、もう一方が前に残れる</li>
+        <li>自陣深くの守備やサイドからの組み立てでも中央を管理しやすい</li></ul></div>
+      <div class="bad" style="margin-top:8px"><h3>デメリット</h3><ul>
+        <li>中央で攻撃をつなぐ専任（CAM）がいなくなる</li>
+        <li>2CMが降りすぎると4トップとの間が空く</li>
+        <li>アンカーに負担が集中し、マンツーマンで消されると詰まりやすい</li>
+        <li>どちらが降りるかのルールがないと同時に降りる／降りないが起きる</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>比較まとめ</h2>
+  <div class="tw"><table>
+    <tr><th>観点</th><th>案A（3-2-1-4）</th><th>案B（3-1-2-4）</th></tr>
+    <tr><td>ビルドアップ</td><td>2ボランチ</td><td>アンカー＋2CM</td></tr>
+    <tr><td>WBのサポート</td><td>CAM中心</td><td>近いCM中心</td></tr>
+    <tr><td>中央の攻撃的な接続</td><td>CAM</td><td>2CM</td></tr>
+    <tr><td>中盤の役割分担</td><td>CAMの動きに依存</td><td>3人で分担</td></tr>
+    <tr><td>4トップとの連携</td><td>CAMを介する</td><td>CMが接続する</td></tr>
+    <tr><td>守備時の中央管理</td><td>2ボランチ</td><td>アンカー＋2CM</td></tr>
+    <tr><td>役割の柔軟性</td><td>CAMの移動が必要</td><td>CMの上下動が可能</td></tr>
+  </table></div>
+  <div class="cols" style="margin-top:14px">
+    <div class="panel"><h3>案Aが向く場合</h3><p>ライン間で前を向ける専任CAMがいて、その選手を攻撃の中心にしたいとき。</p></div>
+    <div class="panel"><h3>案Bが向く場合</h3><p>中盤3人の役割を整理し、4トップとの連携と自陣での段階的な組み立てを重視したいとき。</p></div>
+  </div>
+  <p class="note">※ 動きは一般的な戦術論に基づく設計案で、実際の選手特性や試合映像で検証したものではありません。配置の細部（アンカーの位置など）は説明用の仮定です。</p>
+</section>
+</main>
+
+<script>
+const R=15;
+const K={GK:'g',LCB:'d',CB:'d',RCB:'d',M1:'m',M2:'m',M3:'m',LWB:'m',RWB:'m',LS:'f',RS:'f'};
+const COM={GK:[200,520],LCB:[110,440],CB:[200,455],RCB:[290,440],LWB:[45,150],LS:[150,110],RS:[250,110],RWB:[355,150]};
+const PLANS={
+A:{lab:{M1:'LCM',M2:'RCM',M3:'CAM'},base:{...COM,M1:[150,350],M2:[250,350],M3:[200,235]},steps:[
+ {t:'基本構造：3-2-1-4',d:'<p>3バックの前に<b>2ボランチ</b>、その前に<b>CAM</b>、最前線に<b>4トップ</b>（両WB＋2トップ）。</p><p>CB→WBに出せない運用なので、前進の出口は中央の2ボランチとCAMです。</p>',zones:[{ids:['M1','M2'],l:'2ボランチ'}]},
+ {t:'前進ルート：CAMが主経路',d:'<p><b>RCB→RCM→CAM→RS</b>。CBからWBへの直接パス（×）は使いません。</p><p>受け手の高さが「ボランチ」と「CAM」の2段階しかなく、CAMに前進の負担が集まります。</p>',path:['RCB','M2','M3','RS'],no:[['RCB','RWB']]},
+ {t:'問題：CAMの二重負担',d:'<p>CAMがWBからの横パスを受けようと<b>左へ流れる</b>と、相手のライン間（中央）が空きます。</p><p>逆にライン間に残るとWBが孤立します。<b>この2つは高さが違い、同時にはできません。</b></p>',pos:{M3:[75,215]},moves:['M3'],ghost:[200,235,'接続役が不在'],path:['LWB','M3']},
+ {t:'RCMがDFラインに落ちる（状況次第）',d:'<p>プレスが強いとき、RCMがCB間へ降りて<b>4枚で回す</b>形。</p><p>その場合2ボランチは1枚になり、LCMとCAMの役割分担がさらに曖昧になりやすい点が課題です。</p>',pos:{M2:[245,418]},moves:['M2'],path:['CB','M2','M1']},
+ {t:'ボールロスト：3+2のレストディフェンス',d:'<p>後方は3バック＋2ボランチの5枚で安定します。</p><p>ただしCAMが流れていると、ロスト後の中央の第一プレスが遅れ、4トップとの距離も開きます。</p>',zones:[{ids:['LCB','CB','RCB','M1','M2'],l:'3+2 レストディフェンス'}]}
+]},
+B:{lab:{M1:'ANC',M2:'LCM',M3:'RCM'},base:{...COM,M1:[200,350],M2:[135,260],M3:[265,260]},steps:[
+ {t:'基本構造：3-1-2-4',d:'<p>3バックの前に<b>アンカー（ANC）</b>、その前に<b>2CM（LCM・RCM）</b>、最前線に4トップ。</p><p>CAMはいません。受け手が「アンカー→2CM→4トップ」と段階的に並びます。</p>',zones:[{ids:['M2','M3'],l:'2CM'}]},
+ {t:'アンカーが左右に動いて受ける',d:'<p>ANCが<b>ボールサイドへスライド</b>して受けます。</p><p>例：LCB→ANC→LCM→LS。ボール保持者に近い位置で受けるため、WBに頼らずに前進できます。</p>',pos:{M1:[140,350]},moves:['M1'],path:['LCB','M1','M2','LS']},
+ {t:'困ったら2CMの一方が降りる（3-2化）',d:'<p>アンカーがプレスで詰まったら、<b>RCMが降りて3-2</b>を作ります。LCMは前に残ります。</p><p>固定の3-2ではなく、<b>必要なときだけ3-2になる</b>のが案Bの強みです。</p>',pos:{M1:[140,350],M3:[260,350]},moves:['M3'],from:{M1:[140,350]},path:['CB','M3','M2','RS']},
+ {t:'2CMが交互に降りる',d:'<p>次はLCMが降り、RCMが前に戻ります。<b>降りる側と残る側を交代</b>することで、相手のマークを混乱させます。</p><p>ここで「誰が降りるか」のルールがないと、同時に降りて前線が孤立します。</p>',pos:{M1:[260,350],M2:[140,350],M3:[265,260]},from:{M1:[140,350],M2:[135,260],M3:[260,350]},moves:['M1','M2','M3'],path:['LCB','M2','M3','RS']},
+ {t:'注意：2CMが降りすぎると間が空く',d:'<p>2CMが両方とも降りると、<b>4トップとの間に空白</b>が生まれ、前線が孤立します。</p><p>中央で前を向いて受ける専任（CAM）がいない分、一方は必ず前に残すルールが必要です。</p>',pos:{M1:[200,385],M2:[140,350],M3:[260,350]},moves:['M2','M3','M1'],ghost:[200,215,'空白'],path:[]},
+ {t:'自陣深く／ロスト時：中央を3層で管理',d:'<p>3バック・アンカー・2CMで中央を層状に管理でき、自陣深くの守備でも崩れにくい配置です。</p><p>サイドからじっくり崩す場面でも、近いCMがサポートに入れます。</p>',zones:[{ids:['LCB','CB','RCB','M1','M2','M3'],l:'中央を3層で管理'}]}
+]}};
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+const nodes={},texts={};
+for(const k in K){const g=el('g',{class:'p'},$('players'));el('circle',{r:R,class:K[k]},g);texts[k]=el('text',{},g);nodes[k]=g}
+const ball=$('ball');let plan='A',cur=0,timers=[],auto=null;
+const place=(k,p)=>nodes[k].style.transform=`translate(${p[0]}px,${p[1]}px)`;
+function shorten(a,b,s,e){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;return [[a[0]+ux*s,a[1]+uy*s],[b[0]-ux*e,b[1]-uy*e],L]}
+function render(i,replay){
+  timers.forEach(clearTimeout);timers=[];cur=i;
+  const P=PLANS[plan],S=P.steps[i],T={...P.base,...S.pos},F={...P.base,...(S.from||{})};
+  for(const k in K)texts[k].textContent=P.lab[k]||k;
+  if(replay&&S.moves){for(const k in nodes){nodes[k].style.transition='none';place(k,F[k])}void $('players').getBoundingClientRect();for(const k in nodes)nodes[k].style.transition=''}
+  for(const k in nodes)place(k,T[k]);
+  $('t').textContent=S.t;$('d').innerHTML=S.d;
+  document.querySelectorAll('#steps button').forEach((b,j)=>{b.setAttribute('aria-current',j===i);b.title=P.steps[j].t});
+  ['zones','mv','arrows'].forEach(id=>$(id).replaceChildren());
+  (S.zones||[]).forEach(z=>{const xs=z.ids.map(k=>T[k][0]),ys=z.ids.map(k=>T[k][1]);const x0=Math.min(...xs)-26,x1=Math.max(...xs)+26,y0=Math.min(...ys)-26,y1=Math.max(...ys)+26;
+    el('rect',{x:x0,y:y0,width:x1-x0,height:y1-y0,rx:16,class:'zone'},$('zones'));el('text',{x:(x0+x1)/2,y:y0-5,class:'zl'},$('zones')).textContent=z.l});
+  if(S.ghost){el('circle',{cx:S.ghost[0],cy:S.ghost[1],r:R+4,class:'gh'},$('zones'));el('text',{x:S.ghost[0],y:S.ghost[1]-R-10,class:'gt'},$('zones')).textContent=S.ghost[2]}
+  (S.moves||[]).forEach(k=>{const a=F[k],b=T[k];if(Math.hypot(a[0]-b[0],a[1]-b[1])<8)return;const [s,e]=shorten(a,b,R,R+2);el('line',{x1:s[0],y1:s[1],x2:e[0],y2:e[1],class:'mv'},$('mv'))});
+  (S.no||[]).forEach(([a,b])=>{const A=T[a],B=T[b],[s,e]=shorten(A,B,R,R);el('line',{x1:s[0],y1:s[1],x2:e[0],y2:e[1],class:'no'},$('mv'));el('text',{x:(A[0]+B[0])/2,y:(A[1]+B[1])/2,class:'nx'},$('mv')).textContent='×'});
+  const Q=S.path||[];ball.style.transition='none';
+  const b0=Q.length?T[Q[0]]:T.CB;ball.style.transform=`translate(${b0[0]}px,${b0[1]-R-2}px)`;void ball.getBoundingClientRect();ball.style.transition='';
+  for(let j=0;j<Q.length-1;j++)timers.push(setTimeout(()=>{const a=T[Q[j]],b=T[Q[j+1]],[s,e,L]=shorten(a,b,R,R+3);
+    const l=el('line',{x1:s[0],y1:s[1],x2:e[0],y2:e[1],class:'arr'},$('arrows'));l.style.setProperty('--len',L);
+    ball.style.transform=`translate(${b[0]}px,${b[1]-R-2}px)`},900+j*800));
+}
+function buildSteps(){const sb=$('steps');sb.replaceChildren();PLANS[plan].steps.forEach((s,i)=>{const b=document.createElement('button');b.textContent=i+1;b.onclick=()=>{stop();render(i,true)};sb.appendChild(b)})}
+function stop(){if(auto){clearInterval(auto);auto=null;$('play').textContent='自動再生'}}
+function setPlan(p){stop();plan=p;$('tA').setAttribute('aria-pressed',p==='A');$('tB').setAttribute('aria-pressed',p==='B');buildSteps();render(0,true)}
+$('tA').onclick=()=>setPlan('A');$('tB').onclick=()=>setPlan('B');
+const N=()=>PLANS[plan].steps.length;
+$('prev').onclick=()=>{stop();render((cur+N()-1)%N(),true)};
+$('next').onclick=()=>{stop();render((cur+1)%N(),true)};
+$('replay').onclick=()=>{stop();render(cur,true)};
+$('play').onclick=()=>{if(auto){stop();return}$('play').textContent='停止';auto=setInterval(()=>render((cur+1)%N(),true),5500)};
+for(const k in nodes)place(k,PLANS.A.base[k]);
+buildSteps();render(0,false);
+</script>
+</body>
+</html>
